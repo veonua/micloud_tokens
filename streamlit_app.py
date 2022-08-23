@@ -1,5 +1,9 @@
 import micloud
 import streamlit as st
+from micloud.micloudexception import MiCloudAccessDenied
+import logging
+logging.basicConfig()
+logging.getLogger().setLevel(logging.DEBUG)
 
 server = st.selectbox("Select server", ["cn", "de", "i2", "ru", "sg", "us"])
 username = st.text_input("Enter your name")
@@ -19,7 +23,11 @@ login = None
 if username and password:
     cloud = micloud.MiCloud(username, password)
     cloud.default_server = server
-    login = cloud.login()
+
+    try:
+        login = cloud.login()
+    except MiCloudAccessDenied as e:
+        st.error(e)
 
     if login:
         devices = cloud.get_devices()
